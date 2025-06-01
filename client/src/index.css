@@ -1,0 +1,15 @@
+@import url("https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@400..800&family=Outfit:wght@100..900&display=swap");
+@import "tailwindcss";
+
+@layer utilities {
+	.font-balooda {
+		font-family: "Baloo Da 2";
+	}
+	.font-outfit {
+		font-family: "Outfit";
+	}
+}
+
+::-webkit-scrollbar {
+	display: none;
+}
