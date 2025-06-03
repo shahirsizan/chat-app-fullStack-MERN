@@ -3,6 +3,7 @@ import "dotenv/config";
 import cors from "cors";
 import http from "http";
 import { connectDB } from "./lib/db.js";
+import userRouter from "./routes/userRoutes.js";
 
 // create express app and http server
 const app = express();
@@ -15,10 +16,13 @@ app.use(cors());
 // connect to DB
 await connectDB();
 
+// Routes setup
 app.use("/api/status", (req, res) => {
 	res.send("Server running");
 });
+app.use("/api/auth", userRouter);
 
+// Port setup
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
 	console.log("Server is running on port: ", PORT);
