@@ -1,5 +1,7 @@
+import cloudinary from "../lib/cloudinary.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
+import { io, userSocketMap } from "../server.js";
 
 //  get all users except logged in user in sidebar
 export const getUsersForSIdebar = async (req, res) => {
@@ -78,6 +80,67 @@ export const getMessages = async (req, res) => {
 		});
 	} catch (error) {
 		console.log("Error in messageController->getMessages(): ", error);
+		res.json({ success: false, message: error.message });
+	}
+};
+
+// nicher API er ki kaj bujhtesi na. uporer API tei to message seen kora hoise :(
+//  mark messages as seen using message id
+export const markMessageAsSeen = async (req, res) => {
+	try {
+		const { id } = req.params;
+
+		await Message.findByIdAndUpdate(id, { seen: true });
+
+		res.json({
+			success: true,
+		});
+	} catch (error) {
+		console.log("Error in messageController->markMessageAsSeen(): ", error);
+		res.json({ success: false, message: error.message });
+	}
+};
+
+// send message
+export const sendMessage = async (req, res) => {
+	try {
+		const { text, image } = req.body;
+
+		const receiverId = req.params.id;
+		const senderId = req.user._id;
+
+		// we'll get it from `cloudinary` response
+		let imageUrl;
+
+		if (image) {
+			const uploadResponse = await cloudinary.uploader.upload(image);
+			imageUrl = uploadResponse.secure_url;
+		}
+
+		const newMessage = await Message.create({
+			senderId: senderId,
+			receiverId: receiverId,
+			text: text,
+			image: imageUrl,
+		});
+		// Okay, enough for normal software applications.
+		// But for realtime applications like this chat-app, not only store in DB
+		// but also we need to display that message in the receivers end immediately.
+		// Here comes Socket.io
+
+		// emit the newMessage to the receivers socket
+		const receiverSocketId = userSocketMap[receiverId];
+
+		if (receiverSocketId) {
+			io.to(receiverSocketId).emit("newMessage", newMessage);
+		}
+
+		res.json({
+			success: true,
+			newMessage: newMessage,
+		});
+	} catch (error) {
+		console.log("Error in messageController->sendMessage(): ", error);
 		res.json({ success: false, message: error.message });
 	}
 };
