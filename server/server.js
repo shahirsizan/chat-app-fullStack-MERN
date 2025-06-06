@@ -21,8 +21,8 @@ export const userSocketMap = {}; // format -> {userId : socketId}
 
 // socket.io connection handler
 io.on("connection", (socket) => {
+	// when one of the friends becomes online
 	const userId = socket.handshake.query.userId;
-
 	if (userId) {
 		console.log("User connected: ", userId);
 		userSocketMap[userId] = socket.id;
