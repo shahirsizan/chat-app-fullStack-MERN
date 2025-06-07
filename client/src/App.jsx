@@ -3,10 +3,12 @@ import { Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
 	return (
 		<div className="bg-[url('./src/assets/fittonia-5048998_1920.jpg')] bg-cover font-outfit">
+			<Toaster />
 			<Routes>
 				<Route path="/" element={<HomePage />} />
 				<Route path="/login" element={<LoginPage />} />
